@@ -1,0 +1,47 @@
+﻿@page "/"
+@inject HttpClient HttpClient
+
+<PageTitle>Index</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<SurveyPrompt Title="How is Blazor working for you?" />
+
+<div class="card text-center m-3">
+    <h5 class="card-header">Simple GET Request</h5>
+    <div class="card-body">
+        Total users: @response?.Total
+    </div>
+</div>
+
+<h2>Claims</h2>
+<AuthorizeView>
+    <ul>
+        @foreach (var claim in context.User.Claims)
+        {
+            <li><b>@claim.Type</b>: @claim.Value</li>
+        }
+    </ul>
+</AuthorizeView>
+
+@code {
+    public class User
+    {
+        public int Id { get; set; }
+        public string Email { get; set; }
+    }
+    public class UsersResponse
+    {
+        public int Total { get; set; }
+        public User[] Data { get; set; }
+    }
+
+    private UsersResponse response;
+
+    protected override async Task OnInitializedAsync()
+    {
+        response = await HttpClient.GetFromJsonAsync<UsersResponse>("https://reqres.in/api/users");
+    }
+}

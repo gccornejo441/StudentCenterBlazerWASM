@@ -1,0 +1,56 @@
+﻿@page "/register"
+@inject HttpClient HttpClient // This is optional; you can use HttpClient to send registration data to the server
+@inject NavigationManager navManager
+@inject IAuthenticationService AuthenticationService
+
+<h3>Register</h3>
+
+@if (ShowRegistrationErros)
+{
+    <div class="alert alert-danger" role="alert">
+        @foreach (var error in Errors)
+        {
+            <p>@error</p>
+        }
+    </div>
+}
+
+<form>
+    <div class="form-group">
+        <label for="emailInput">Email address</label>
+        <input type="email" class="form-control" id="emailInput" @bind="_userForRegistration.Email">
+    </div>
+    <div class="form-group">
+        <label for="passwordInput">Password</label>
+        <input type="password" class="form-control" id="passwordInput" @bind="_userForRegistration.Password">
+    </div>
+    <button type="button" class="btn btn-primary" @onclick="RegisterUser">Register</button>
+</form>
+
+@code {
+    private class UserRegistrationModel
+    {
+        public string Email { get; set; }
+        public string Password { get; set; } = null;
+    }
+
+    private UserForRegistrationDto _userForRegistration = new UserForRegistrationDto();
+    public bool ShowRegistrationErros { get; set; }
+    public IEnumerable<string> Errors { get; set; }
+
+    private async Task RegisterUser()
+    {
+        ShowRegistrationErros = false;
+
+        var result = await AuthenticationService.RegisterUser(_userForRegistration);
+        if (!result.IsSuccessfulRegistration)
+        {
+            Errors = result.Errors;
+            ShowRegistrationErros = true;
+        }
+        else
+        {
+            navManager.NavigateTo("/");
+        }
+    }
+}

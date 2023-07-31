@@ -1,0 +1,55 @@
+﻿@page "/login"
+@inject IAuthenticationService AuthenticationService
+@inject HttpClient HttpClient // This is optional; you can use HttpClient to send login data to the server
+@inject NavigationManager navManager
+
+<h3>Login</h3>
+
+@if (ShowAuthError)
+{
+    <div class="alert alert-danger" role="alert">
+        <p>@Error</p>
+    </div>
+}
+
+<form>
+    <div class="form-group">
+        <label for="emailInput">Email address</label>
+        <input type="email" class="form-control" id="emailInput" @bind="_userForAuthentication.Email">
+    </div>
+    <div class="form-group">
+        <label for="passwordInput">Password</label>
+        <input type="password" class="form-control" id="passwordInput" @bind="_userForAuthentication.Password">
+    </div>
+    <button type="button" class="btn btn-primary" @onclick="LoginUser">Login</button>
+</form>
+
+@code {
+    private class UserLoginModel
+    {
+        public string Email { get; set; } = null!;
+        public string Password { get; set; } = null!;
+    }
+    private UserForAuthenticationDto _userForAuthentication = new UserForAuthenticationDto();
+    private bool loginSuccess = false;
+    public bool ShowAuthError { get; set; }
+    public string Error { get; set; }
+
+    private async Task LoginUser()
+    {
+        
+            // You can use HttpClient to send the loginModel to the server
+            // For example:
+            var result = await AuthenticationService.Login(_userForAuthentication);
+            if (!result.IsAuthSuccessful)
+            {
+                Error = result.ErrorMessage;
+                ShowAuthError = true;
+            }
+            else
+            {
+            navManager.NavigateTo("/Counter");
+            }
+        
+    }
+}
